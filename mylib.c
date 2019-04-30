@@ -111,8 +111,8 @@ void stuEntrance(){
 }
 void stuLogin(){
 	if(stucount==0){
-		printf("No student in this library system...");
-		printf("back to the home page....");
+		printf("\nNo student in this library system...");
+		printf("\nback to the home page....");
 		Sleep(1500);
 		firstInterface();
 		return;
@@ -317,7 +317,7 @@ void returnbook(struct stu *sp){
 	struct book *bp;
 	char bookname[100];
 	int count = sp->bookcount;
-	int exist;
+	int exist=0;
 	int flag;
 	bp = bookhead;
 	int i;
@@ -326,29 +326,32 @@ void returnbook(struct stu *sp){
 		printf("\n%d:%s", i+1,sp->borrowedBook[i]);
 	}
 	printf("\n=======================================================");
-	printf("\nPlease enter number to choose which you want to return:");
-	while(!scanf("%d",flag)||(flag<0||flag>count)){
-		printf("\nWrong input, please enter again:");
-	}
+	printf("\nPlease enter the book name to choose which you want to return:");
+	scanf("%s",bookname);
 	while (bp != NULL){
-		if (strcmp(bp->nameOfBook, sp->borrowedBook[flag-1]) == 0){
+		if (strcmp(bp->nameOfBook, bookname) == 0){
 			bp->quantity++;
+			exist=1;
 			break;
 		}
 		bp = bp->next;
 	}
-	if(bp==NULL&&strcmp(bp->nameOfBook, sp->borrowedBook[flag-1]) != 0){
-		
+	if(!exist){
 		printf("\n=========================================================================");
 		printf("\n|        The book can not be found from library                         |");
 		printf("\n|(deleted or you did not borrow this book from here, you can keep that!)|");
 		printf("\n=========================================================================");
-		printf(".......return to the home page.......\n");
+		printf("\n.......return to the home page.......\n");
 		Sleep(1500);
 		system("cls");
 		firstInterface();
 	}
-	for ( i= flag-1; i < sp->bookcount; i++){
+	else{	
+		for ( i= 0; i < sp->bookcount-1; i++){
+			if(strcmp(sp->borrowedBook[i],bookname)==1)
+			 flag=i;
+		}
+	for( i=flag;i<sp->bookcount-1;i++){
 		strcpy(sp->borrowedBook[i], sp->borrowedBook[i + 1]);
 	}
 	sp->bookcount--;
@@ -357,7 +360,9 @@ void returnbook(struct stu *sp){
 	printf("\n--------Returned successfully!!---------");
 	printf("\n.......return to the home page.......\n");
 	Sleep(1500);
-	firstInterface();}
+	firstInterface();
+	}
+	}
 }
 void staffEntrance()
 {
@@ -517,7 +522,7 @@ void staffFunction(){
 		case 2:
 			deletebook();
 			break;
-		case3 :
+		case 3 :
 			viewstudents();
 			break;
 		case 4:
@@ -667,23 +672,42 @@ void viewstudents(){
 	system("cls");
 	struct stu *sp;
 	sp = stuhead;
+	if(stucount==0){
+		printf("\nno registered students in this system");
+		printf("\nback to the home page.......");
+		Sleep(1500);
+		firstInterface();
+	}
 	while (sp != NULL){
-		printf("\nstudent ID: %s",sp->stuNum);
+		printf("student ID: %s",sp->stuNum);
 		int i;
 		for(i=0;i<sp->bookcount;i++){
-			printf("\nBorrowed book:");
-			puts(sp->borrowedBook[i]);
+			printf("\nBorrowed book:%s",sp->borrowedBook[i]);
 		}
-		printf("\n--------------------------------------------");
 		printf("\nTotal count of borrowed books:%d",sp->bookcount);
+		printf("\n--------------------------------------------");
+		printf("\n\n");
 		sp = sp->next;
-		printf("\n");
 	}
-	printf("\n=====================================");
-	printf("\npress enter to back to the home page....");
-	if(scanf("%c")) firstInterface();
+	printf("\n\n\n===================================================");
+	printf("\nyou can enter 1 to do sth else or enter anything to exit:");
+	int i;
+	scanf("%d",&i);
+	if(i==1){
+		staffFunction();
+	}
+	else{
+		printf("have a good day, bye!");
+		return;
+	}
 }
 void details(){
+	if(bookcount==0){
+		printf("no books here");
+		Sleep(1500);
+		firstInterface();
+		return;
+	}
 	struct book *bp;
 	bp=bookhead;
 	int i=1;
@@ -704,6 +728,12 @@ void details(){
 	}
 }
 void change(){
+	if(bookcount==0){
+		printf("no books here");
+		Sleep(1500);
+		firstInterface();
+		return;
+	}
 	struct book *bookp;
 	char bookname[100];
 	int exist = 0;
@@ -727,6 +757,7 @@ void change(){
 			firstInterface();
 			break;
 		}
+		bookp=bookhead;
 		while (bookp != NULL){
 			if (strcmp(bookp->nameOfBook, bookname) == 0){
 				exist = 1;
@@ -743,31 +774,28 @@ void change(){
 	Sleep(1500);
 	system("cls");
 	printf("\n=============================");
-	printf("\n|1:change name	 		  |");
+	printf("\n|1:change name              |");
 	printf("\n|2:change author            |");
 	printf("\n|3:change quantity          |");
 	printf("\n|4:return to the home page..|");
 	printf("\n=============================");
 	int choice;
 	printf("\nmake your choice:");
-	scanf("%d",choice);
+	scanf("%d",&choice);
 	while(choice!=1&&choice!=2&&choice!=3&&choice!=4){
 		printf("\nWrong input enter again:");
 		scanf("%d",choice);
 	}
-	bookp=bookhead;
 	switch (choice){
 		case 1:{
 			printf("\nnew name: ");
-			scanf("%s", bookname);
-			strcpy(bookp->nameOfBook, bookname);
+			scanf("%s", bookp->nameOfBook);
 			break;
 		}
 
 		case 2:{
 			printf("\nnew author: ");
-			scanf("%s",author);
-			strcpy(bookp->author, author);
+			scanf("%s",bookp->author);
 			break;
 		}
 		case 3:{
@@ -778,9 +806,13 @@ void change(){
 		case 4:{
 			firstInterface();
 			break;
-	}
+		}
 	}
 	writeBooks();
+	printf("\nthe information of book was update successfully");
+	printf("\nbace to the home page....");
+	Sleep(1500);
+	firstInterface();
 	
 }
 void addpassword(){
